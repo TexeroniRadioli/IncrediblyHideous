@@ -11,7 +11,7 @@ type Shape interface {
 	GetMomentOfInertia () float64
 }
 
-type Polygon struct {
+type polygon struct {
 	// The points that define this polygon
 	//	The polygon is closed, so the first point in the slice counts as the last point
 	points []Vector2
@@ -21,8 +21,15 @@ type Polygon struct {
 	geometricCenter Vector2
 }
 
+type Polygon interface {
+	SupportFunc (param Vector2) Vector2
+	GetGeometricCenter () Vector2
+	GetMomentOfInertia() float64
+	GetPoints() []Vector2
+}
+
 // Returns the vertex of this polygon that yields the highest dot product with the input vector
-func (p Polygon) SupportFunc(param Vector2) Vector2 {
+func (p polygon) SupportFunc(param Vector2) Vector2 {
 	var theMeme Vector2
 	var d = -math.MaxFloat32
 
@@ -37,20 +44,20 @@ func (p Polygon) SupportFunc(param Vector2) Vector2 {
 	return theMeme
 }
 
-func (p Polygon) GetGeometricCenter() Vector2 {
+func (p polygon) GetGeometricCenter() Vector2 {
 	return p.geometricCenter
 }
 
-func (p Polygon) GetMomentOfInertia() float64 {
+func (p polygon) GetMomentOfInertia() float64 {
 	return p.momentOfInertia
 }
 
-func (p Polygon) GetPoints() []Vector2 {
+func (p polygon) GetPoints() []Vector2 {
 	return p.points
 }
 
 // sets the moment of inertia for this polygon
-func (p *Polygon) setMomentOfInertia() {
+func (p *polygon) setMomentOfInertia() {
 	var upperSum, lowerSum, crossTemp float64
 	var p0, p1 Vector2
 
@@ -66,7 +73,7 @@ func (p *Polygon) setMomentOfInertia() {
 }
 
 // Sets the geometric center for this polygon
-func (p *Polygon) setGeometricCenter() {
+func (p *polygon) setGeometricCenter() {
 	var center Vector2
 	for _, v := range p.points {
 		center = center.Add(v)
@@ -76,35 +83,43 @@ func (p *Polygon) setGeometricCenter() {
 	p.geometricCenter = center
 }
 
-type Circle struct {
+type circle struct {
 	center Vector2
 	radius float64
 }
 
-func (c Circle) SupportFunc(param Vector2) Vector2 {
+type Circle interface {
+	SupportFunc (param Vector2) Vector2
+	GetGeometricCenter () Vector2
+	GetMomentOfInertia () float64
+	GetCenter () Vector2
+	GetRadius () float64
+}
+
+func (c circle) SupportFunc(param Vector2) Vector2 {
 	multiplier := c.radius / param.GetMagnitude()
 	return Vector2 {param.X * multiplier, param.Y * multiplier}
 }
 
-func (c Circle) GetGeometricCenter() Vector2 {
+func (c circle) GetGeometricCenter() Vector2 {
 	return c.center
 }
 
-func (c Circle) GetMomentOfInertia() float64 {
+func (c circle) GetMomentOfInertia() float64 {
 	return c.radius * c.radius
 }
 
-func (c Circle) GetCenter() Vector2 {
+func (c circle) GetCenter() Vector2 {
 	return c.center
 }
 
-func (c Circle) GetRadius() float64 {
+func (c circle) GetRadius() float64 {
 	return c.radius
 }
 
 // Factory function that creates a new polygon from a slice of points
 func MakePolygon(points []Vector2) Polygon {
-	var p = Polygon{points: points}
+	var p = polygon{points: points}
 	p.setGeometricCenter()
 	p.setMomentOfInertia()
 
@@ -113,5 +128,5 @@ func MakePolygon(points []Vector2) Polygon {
 
 // Factory function that creates a new circle from a center point, and radius
 func MakeCircle(center Vector2, radius float64) Circle {
-	return Circle {center, radius}
+	return circle {center, radius}
 }

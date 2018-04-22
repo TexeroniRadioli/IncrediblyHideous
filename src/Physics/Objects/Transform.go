@@ -1,4 +1,4 @@
-package Physics
+package Objects
 
 import u "Utilities"
 
@@ -6,5 +6,5 @@ import u "Utilities"
 type Transform struct {
 	Position u.Vector2
 	Rotation u.Radian
-	Scale u.Vector2
+	Scale float64
 }
